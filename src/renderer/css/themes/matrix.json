@@ -1,0 +1,21 @@
+{
+  "name": "Matrix Green",
+  "--color-bg":           "#000000",
+  "--color-bg-panel":     "#020a02",
+  "--color-bg-hover":     "#061206",
+  "--color-border":       "#0a2a0a",
+  "--color-accent":       "#00ff41",
+  "--color-accent-dim":   "#007a20",
+  "--color-text":         "#33ff77",
+  "--color-text-dim":     "#1a6632",
+  "--color-text-bright":  "#aaffcc",
+  "--color-success":      "#00ff41",
+  "--color-warn":         "#ffff00",
+  "--color-danger":       "#ff0000",
+  "--color-purple":       "#00ff88",
+  "--font-mono":          "'Fira Code', 'Cascadia Code', 'Courier New', monospace",
+  "--font-size-base":     "13px",
+  "--border-radius":      "2px",
+  "--panel-gap":          "4px",
+  "--scanline-opacity":   "0.08"
+}

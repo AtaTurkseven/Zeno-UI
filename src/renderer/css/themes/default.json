@@ -1,0 +1,21 @@
+{
+  "name": "Default (Cyber Blue)",
+  "--color-bg":           "#0a0e14",
+  "--color-bg-panel":     "#0d1117",
+  "--color-bg-hover":     "#161b22",
+  "--color-border":       "#1e2a38",
+  "--color-accent":       "#00d4ff",
+  "--color-accent-dim":   "#007a99",
+  "--color-text":         "#c9d1d9",
+  "--color-text-dim":     "#6e7681",
+  "--color-text-bright":  "#e6edf3",
+  "--color-success":      "#3fb950",
+  "--color-warn":         "#d29922",
+  "--color-danger":       "#f85149",
+  "--color-purple":       "#bc8cff",
+  "--font-mono":          "'Fira Code', 'Cascadia Code', 'Courier New', monospace",
+  "--font-size-base":     "13px",
+  "--border-radius":      "4px",
+  "--panel-gap":          "6px",
+  "--scanline-opacity":   "0.04"
+}
