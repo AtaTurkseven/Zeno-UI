@@ -1,0 +1,8 @@
+node_modules/
+dist/
+out/
+.cache/
+*.log
+*.lock
+.DS_Store
+.env
