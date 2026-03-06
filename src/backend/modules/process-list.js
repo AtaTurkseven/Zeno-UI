@@ -8,8 +8,10 @@
 
 const fs = require('fs');
 const path = require('path');
+const si = require('systeminformation');
 
 const PROC_DIR = '/proc';
+const IS_LINUX = process.platform === 'linux';
 
 /**
  * Read a field from /proc/<pid>/status.
@@ -27,6 +29,23 @@ function statusField(content, field) {
  * Each object: { pid, name, state, memory, cpuTime, user, cmdline }
  */
 async function getProcesses() {
+  if (!IS_LINUX || !fs.existsSync(PROC_DIR)) {
+    const data = await si.processes();
+    const list = Array.isArray(data.list) ? data.list : [];
+
+    return list
+      .map((p) => ({
+        pid: parseInt(p.pid, 10) || 0,
+        name: p.name || p.command || 'unknown',
+        state: p.state || '',
+        memory: Number(p.mem_rss || p.memRss || 0),
+        cpuTime: Number(p.pcpu || p.cpu || 0),
+        cmdline: p.command || p.params || p.name || '',
+      }))
+      .sort((a, b) => b.cpuTime - a.cpuTime)
+      .slice(0, 100);
+  }
+
   const entries = fs.readdirSync(PROC_DIR);
   const procs = [];
 

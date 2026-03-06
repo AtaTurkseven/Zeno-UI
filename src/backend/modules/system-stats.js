@@ -10,6 +10,8 @@
 const fs   = require('fs');
 const si   = require('systeminformation');
 
+const IS_LINUX = process.platform === 'linux';
+
 // ── CPU ──────────────────────────────────────────────────────────────────────
 
 let _prevCpu = null;
@@ -73,26 +75,91 @@ function parseProcMeminfo() {
 // ── Main export ──────────────────────────────────────────────────────────────
 
 async function getStats() {
-  const curr = parseProcStat();
-  const cpu = _prevCpu ? calcCpuUsage(_prevCpu, curr) : curr.map(() => 0);
-  _prevCpu = curr;
+  let aggregate = 0;
+  let cores = [];
+  let gpu = {
+    usage: 0,
+    name: 'n/a',
+  };
+  let battery = {
+    hasBattery: false,
+    percent: null,
+    isCharging: false,
+  };
+  let memory = {
+    total: 0,
+    used: 0,
+    free: 0,
+    usedPct: 0,
+    swapTotal: 0,
+    swapUsed: 0,
+  };
 
-  const mem = parseProcMeminfo();
-  const used = mem.total - mem.available;
+  if (IS_LINUX && fs.existsSync('/proc/stat') && fs.existsSync('/proc/meminfo')) {
+    const curr = parseProcStat();
+    const cpu = _prevCpu ? calcCpuUsage(_prevCpu, curr) : curr.map(() => 0);
+    _prevCpu = curr;
 
-  return {
-    cpu: {
-      aggregate: cpu[0] || 0,
-      cores:     cpu.slice(1),
-    },
-    memory: {
+    const mem = parseProcMeminfo();
+    const used = mem.total - mem.available;
+
+    aggregate = cpu[0] || 0;
+    cores = cpu.slice(1);
+    memory = {
       total:     mem.total,
       used,
       free:      mem.available,
       usedPct:   mem.total ? Math.round((used / mem.total) * 100) : 0,
       swapTotal: mem.swapTotal,
       swapUsed:  mem.swapTotal - mem.swapFree,
+    };
+  } else {
+    const [load, mem] = await Promise.all([si.currentLoad(), si.mem()]);
+
+    aggregate = Math.round(load.currentLoad || 0);
+    cores = (load.cpus || []).map((c) => Math.round(c.load || 0));
+
+    memory = {
+      total:     mem.total || 0,
+      used:      mem.used || 0,
+      free:      mem.available || mem.free || 0,
+      usedPct:   mem.total ? Math.round(((mem.used || 0) / mem.total) * 100) : 0,
+      swapTotal: mem.swaptotal || 0,
+      swapUsed:  mem.swapused || 0,
+    };
+  }
+
+  try {
+    const [graphics, batteryInfo] = await Promise.all([
+      si.graphics(),
+      si.battery(),
+    ]);
+
+    const controllers = Array.isArray(graphics.controllers) ? graphics.controllers : [];
+    const gpuCtl = controllers.find((g) => typeof g.utilizationGpu === 'number') || controllers[0] || {};
+
+    gpu = {
+      usage: Math.max(0, Math.min(100, Math.round(gpuCtl.utilizationGpu || 0))),
+      name: gpuCtl.model || 'GPU',
+    };
+
+    battery = {
+      hasBattery: Boolean(batteryInfo.hasBattery),
+      percent: typeof batteryInfo.percent === 'number' ? Math.round(batteryInfo.percent) : null,
+      isCharging: Boolean(batteryInfo.isCharging),
+    };
+  } catch {
+    // Keep defaults when graphics/battery probing is unavailable.
+  }
+
+  return {
+    cpu: {
+      aggregate,
+      cores,
     },
+    memory,
+    gpu,
+    battery,
   };
 }
 

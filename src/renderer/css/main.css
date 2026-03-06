@@ -1,337 +1,455 @@
-/* ============================================================
-   Zeno-UI – main.css
-   Futuristic hacker-style desktop shell. No touch styles.
-   All layout via CSS grid; keyboard/mouse driven only.
-   ============================================================ */
-
-/* ── CSS Variables (overridden at runtime by theme-manager) ── */
 :root {
-  --color-bg:           #0a0e14;
-  --color-bg-panel:     #0d1117;
-  --color-bg-hover:     #161b22;
-  --color-border:       #1e2a38;
-  --color-accent:       #00d4ff;
-  --color-accent-dim:   #007a99;
-  --color-text:         #c9d1d9;
-  --color-text-dim:     #6e7681;
-  --color-text-bright:  #e6edf3;
-  --color-success:      #3fb950;
-  --color-warn:         #d29922;
-  --color-danger:       #f85149;
-  --color-purple:       #bc8cff;
-  --font-mono:          'Fira Code', 'Cascadia Code', 'Courier New', monospace;
-  --font-size-base:     13px;
-  --border-radius:      4px;
-  --panel-gap:          6px;
-  --scanline-opacity:   0.04;
+  --bg-0: #05070a;
+  --bg-1: #0a120f;
+  --bg-2: #0f1914;
+  --panel: #102216d9;
+  --panel-solid: #0e1d13;
+  --border: #1f5c3b;
+  --accent: #0df259;
+  --accent-dim: #088f37;
+  --text: #d4f9df;
+  --text-dim: #7ba58a;
+  --warn: #ffb347;
+  --danger: #ff6961;
+  --radius: 12px;
+  --bar-h: 42px;
+  --footer-h: 30px;
 }
 
-/* ── Reset ───────────────────────────────────────────────────── */
-*, *::before, *::after {
+* {
   box-sizing: border-box;
+}
+
+html,
+body {
   margin: 0;
-  padding: 0;
-  /* Disable all touch actions globally */
-  touch-action: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-/* Allow text selection only inside terminal and file viewer */
-.terminal-output, .file-content, .selectable {
-  -webkit-user-select: text;
-  user-select: text;
-}
-
-html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-base);
-  line-height: 1.5;
-  /* Cursor: arrow (not pointer) as default; panels set their own */
-  cursor: default;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--bg-0);
 }
 
-/* ── Scanline overlay (purely decorative) ────────────────────── */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, var(--scanline-opacity)) 2px,
-    rgba(0, 0, 0, var(--scanline-opacity)) 4px
-  );
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* ── Canvas background (behind everything) ────────────────────── */
-#bg-canvas {
+#desktop-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
-  pointer-events: none;
+  background: radial-gradient(1200px 600px at 20% 10%, #0df2591a, transparent 64%),
+              radial-gradient(900px 700px at 86% 90%, #0df25912, transparent 60%),
+              linear-gradient(150deg, var(--bg-0), var(--bg-1) 60%, var(--bg-2));
 }
 
-/* ── Root layout ──────────────────────────────────────────────── */
-#app {
+#desktop-root {
   position: relative;
   z-index: 1;
-  display: grid;
   width: 100vw;
   height: 100vh;
-  gap: var(--panel-gap);
-  padding: var(--panel-gap);
-  /*
-    Layout:
-      Left sidebar  (240px) | Main center            | Right sidebar (220px)
-      ─────────────────────────────────────────────────────────────────────
-      system-monitor         terminal (top)            process-viewer
-      filesystem-nav         terminal (bottom)         (continued)
-  */
-  grid-template-columns: 240px 1fr 220px;
-  grid-template-rows: 1fr 1fr;
-  grid-template-areas:
-    "sysmon  terminal  procs"
-    "fs      terminal  procs";
+  display: grid;
+  grid-template-rows: var(--bar-h) 1fr var(--footer-h);
+  opacity: 1;
+  transition: opacity 300ms ease;
 }
 
-/* ── Panel base ───────────────────────────────────────────────── */
-.panel {
-  background: var(--color-bg-panel);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
+#desktop-root.booting {
+  opacity: 0;
+}
+
+#top-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid #1b5537;
+  background: #061008eb;
+  backdrop-filter: blur(5px);
+}
+
+.top-left,
+.top-center,
+.top-right {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.top-left {
+  gap: 12px;
+}
+
+.top-center {
+  justify-content: center;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-right {
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.brand {
+  font-size: 0.8rem;
+  letter-spacing: 0.24em;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+#workspace-list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
+}
+
+.workspace-chip {
+  min-width: 28px;
+  text-align: center;
+  padding: 2px 7px;
+  border: 1px solid #1e5a3f;
+  border-radius: 999px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.workspace-chip.active {
+  color: #03140a;
+  background: var(--accent);
+  border-color: #3eff8a;
+  font-weight: 700;
+}
+
+.metric {
+  border: 1px solid #1e5a3f;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.metric strong {
+  color: var(--accent);
+}
+
+.metric.warn strong {
+  color: var(--warn);
+}
+
+.metric.danger strong {
+  color: var(--danger);
+}
+
+.metric.clock {
+  color: var(--text);
+}
+
+#workspace-container {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 12px;
+  padding: 12px;
+  min-height: 0;
+}
+
+#workspace-surface {
+  border: 1px solid #1d4f36;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #102216b3, #0b170f99);
+  box-shadow: 0 14px 30px #00000066;
+  padding: 14px;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  outline: none;
+}
+
+#workspace-surface:focus {
+  border-color: #3eff8a;
+}
+
+.surface-title,
+.dock-title {
+  color: var(--accent);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  margin-bottom: 12px;
+}
+
+#window-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.window-card {
+  border: 1px solid #1e5a3f;
+  border-radius: 10px;
+  background: #08140d;
+  padding: 10px;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+}
+
+.window-card.active {
+  border-color: #3eff8a;
+  box-shadow: 0 0 0 1px #0df25988 inset;
+}
+
+.window-title {
+  color: var(--text);
+  font-size: 0.8rem;
+  white-space: nowrap;
   overflow: hidden;
-  position: relative;
+  text-overflow: ellipsis;
+}
+
+.window-meta {
+  margin-top: 6px;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+#widget-dock {
+  border: 1px solid #1d4f36;
+  border-radius: var(--radius);
+  background: #0b170fd6;
+  padding: 12px;
+  overflow: auto;
+}
+
+.widget {
+  border: 1px solid #205b3f;
+  border-radius: 10px;
+  background: #07120b;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.widget h4 {
+  margin: 0 0 8px;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+#shell-hints {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  border-top: 1px solid #1b5537;
+  background: #061008eb;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+kbd {
+  padding: 1px 6px;
+  border: 1px solid #2a744f;
+  border-radius: 4px;
+  color: var(--text);
+  font-family: "JetBrains Mono", "Consolas", monospace;
+}
+
+#launcher {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  display: none;
+  place-items: center;
+  background: #000000ad;
+  backdrop-filter: blur(8px);
+}
+
+#launcher.open {
+  display: grid;
+}
+
+#launcher-panel {
+  width: min(760px, 94vw);
+  max-height: 76vh;
+  border: 1px solid #31a667;
+  border-radius: 14px;
+  background: #0b1a11ee;
+  box-shadow: 0 18px 60px #00000080;
+  overflow: hidden;
+}
+
+#launcher-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #1e5a3f;
+  background: #08130d;
+  color: var(--text);
+  padding: 14px;
+  font-size: 1.08rem;
+  outline: none;
+}
+
+#launcher-results {
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  max-height: calc(76vh - 58px);
+  overflow: auto;
+}
+
+.launcher-item {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+}
+
+.launcher-item.active,
+.launcher-item:hover {
+  background: #0df25933;
+  border-color: #2cab67;
+}
+
+#side-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(420px, 92vw);
+  height: 100vh;
+  z-index: 11;
+  transform: translateX(104%);
+  transition: transform 220ms ease;
+  background: #0a1a11f0;
+  border-left: 1px solid #2d8a59;
+  box-shadow: -14px 0 32px #00000070;
+  display: flex;
+  flex-direction: column;
+}
+
+#side-panel.open {
+  transform: translateX(0);
 }
 
 .panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 10px;
-  border-bottom: 1px solid var(--color-border);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-  flex-shrink: 0;
+  padding: 12px;
+  border-bottom: 1px solid #1f5c3b;
+  color: var(--accent);
+  font-size: 0.78rem;
+  letter-spacing: 0.13em;
 }
 
-.panel-header .panel-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.panel-body {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 8px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
-}
-
-/* ── Grid area assignments ────────────────────────────────────── */
-#panel-sysmon   { grid-area: sysmon; }
-#panel-terminal { grid-area: terminal; }
-#panel-procs    { grid-area: procs; }
-#panel-fs       { grid-area: fs; }
-
-/* ── Stat bar (CPU, RAM, etc.) ────────────────────────────────── */
-.stat-label {
-  font-size: 11px;
-  color: var(--color-text-dim);
-  margin-bottom: 2px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.stat-bar {
-  height: 6px;
-  background: var(--color-border);
-  border-radius: 3px;
-  margin-bottom: 8px;
-  overflow: hidden;
-}
-
-.stat-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  background: var(--color-accent);
-  transition: width 0.4s ease;
-}
-
-.stat-bar-fill.warn  { background: var(--color-warn); }
-.stat-bar-fill.danger { background: var(--color-danger); }
-
-/* ── Process list ─────────────────────────────────────────────── */
-.proc-row {
-  display: grid;
-  grid-template-columns: 40px 1fr 70px 70px;
-  gap: 4px;
-  padding: 2px 0;
-  font-size: 11px;
-  border-bottom: 1px solid transparent;
-  cursor: pointer;
-}
-
-.proc-row:hover { background: var(--color-bg-hover); }
-
-.proc-row .pid    { color: var(--color-text-dim); }
-.proc-row .pname  { color: var(--color-text-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.proc-row .pmem   { color: var(--color-warn); text-align: right; }
-.proc-row .pstate { color: var(--color-text-dim); text-align: right; }
-
-/* ── Filesystem navigator ─────────────────────────────────────── */
-.fs-crumbs {
-  font-size: 11px;
-  color: var(--color-text-dim);
-  padding: 4px 8px;
-  border-bottom: 1px solid var(--color-border);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex-shrink: 0;
-  cursor: default;
-}
-
-.fs-entry {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 4px;
-  border-radius: 2px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.fs-entry:hover { background: var(--color-bg-hover); }
-.fs-entry.selected { background: var(--color-accent-dim); color: var(--color-text-bright); }
-
-.fs-icon { color: var(--color-accent-dim); width: 14px; text-align: center; }
-.fs-entry.dir .fs-icon { color: var(--color-accent); }
-.fs-entry.symlink .fs-icon { color: var(--color-purple); }
-
-/* ── Terminal pane ────────────────────────────────────────────── */
-#panel-terminal .panel-body {
-  padding: 0;
-  cursor: text;
-}
-
-#terminal-container {
-  width: 100%;
-  height: 100%;
-}
-
-/* xterm.js overrides */
-.xterm { height: 100%; }
-.xterm-viewport { scrollbar-width: thin; scrollbar-color: var(--color-border) transparent; }
-
-/* ── Launcher overlay ─────────────────────────────────────────── */
-#launcher {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: rgba(10, 14, 20, 0.85);
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 15vh;
-}
-
-#launcher.open { display: flex; }
-
-#launcher-box {
-  width: min(600px, 90vw);
-  background: var(--color-bg-panel);
-  border: 1px solid var(--color-accent);
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  box-shadow: 0 0 40px rgba(0, 212, 255, 0.15);
-}
-
-#launcher-input {
-  width: 100%;
+#side-panel-close {
   background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-bright);
-  font: var(--font-size-base) var(--font-mono);
-  padding: 12px 16px;
+  border: 1px solid #2f8f5e;
+  color: var(--text);
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.panel-block {
+  padding: 12px;
+  border-bottom: 1px solid #18472f;
+}
+
+.panel-block.grow {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-block h3 {
+  margin: 0 0 8px;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.ai-box {
+  min-height: 64px;
+  border: 1px solid #225f40;
+  background: #06120b;
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text-dim);
+  font-size: 0.84rem;
+}
+
+.ai-input-row {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  gap: 8px;
+}
+
+.ai-input-row input {
+  border: 1px solid #255f41;
+  border-radius: 8px;
+  background: #08140d;
+  color: var(--text);
+  padding: 8px;
   outline: none;
 }
 
-#launcher-results {
-  list-style: none;
-  max-height: 40vh;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
-}
-
-#launcher-results li {
-  padding: 8px 16px;
+.ai-input-row button {
+  border: 1px solid #2b8f5c;
+  border-radius: 8px;
+  background: #0df25926;
+  color: var(--accent);
+  font-weight: 700;
   cursor: pointer;
-  font-size: 13px;
-  border-bottom: 1px solid transparent;
 }
 
-#launcher-results li:hover,
-#launcher-results li.active {
-  background: var(--color-bg-hover);
-  color: var(--color-accent);
+#log-feed {
+  margin: 0;
+  border: 1px solid #215d3f;
+  background: #040c08;
+  border-radius: 8px;
+  padding: 10px;
+  color: #86c69f;
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  font-size: 0.72rem;
+  line-height: 1.42;
+  overflow: auto;
+  flex: 1;
 }
 
-/* ── Status bar ───────────────────────────────────────────────── */
-#statusbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 22px;
-  background: var(--color-bg-panel);
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  font-size: 11px;
-  color: var(--color-text-dim);
-  z-index: 100;
-}
+@media (max-width: 1100px) {
+  #top-bar {
+    grid-template-columns: 1fr;
+    height: auto;
+    padding: 8px;
+  }
 
-#statusbar .sb-left, #statusbar .sb-right { display: flex; gap: 16px; }
-#statusbar .sb-item .label { color: var(--color-accent-dim); margin-right: 4px; }
+  .top-center,
+  .top-right {
+    justify-content: flex-start;
+  }
 
-/* ── Scrollbar styling ────────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+  #workspace-container {
+    grid-template-columns: 1fr;
+  }
 
-/* ── Keyboard shortcut hint ───────────────────────────────────── */
-kbd {
-  display: inline-block;
-  padding: 1px 5px;
-  font: 11px var(--font-mono);
-  color: var(--color-text-dim);
-  border: 1px solid var(--color-border);
-  border-radius: 3px;
-  background: var(--color-bg);
-}
-
-/* ── Accent glow on focused panels ───────────────────────────── */
-.panel:focus-within {
-  border-color: var(--color-accent-dim);
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.08);
+  #shell-hints {
+    gap: 10px;
+    font-size: 0.64rem;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 0 10px;
+  }
 }

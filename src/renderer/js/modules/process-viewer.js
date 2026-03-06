@@ -39,9 +39,11 @@
       // Click to focus (no touch needed)
       list.querySelectorAll('.proc-row').forEach((row) => {
         row.addEventListener('click', () => {
-          list.querySelectorAll('.proc-row').forEach((r) => r.removeAttribute('aria-selected'));
+          list.querySelectorAll('.proc-row').forEach((r) => {
+            r.removeAttribute('aria-selected');
+            r.style.removeProperty('background');
+          });
           row.setAttribute('aria-selected', 'true');
-          row.style.background = 'var(--color-bg-hover)';
         });
       });
     } catch { /* main process not ready */ }

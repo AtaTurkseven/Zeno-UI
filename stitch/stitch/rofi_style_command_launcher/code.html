@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rofi-Style Command Launcher</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0df259",
+              "background-light": "#f5f8f6",
+              "background-dark": "#0a120b",
+            },
+            fontFamily: {
+              "display": ["Space Grotesk", "monospace"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>.glass-panel {
+    background: rgba(16, 34, 22, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(13, 242, 89, 0.2)
+    }
+.neon-cursor {
+    border-right: 2px solid #0df259;
+    animation: blink 1s step-end infinite
+    }
+@keyframes blink {
+    from, to {
+        border-color: transparent
+        } 50% {
+        border-color: #0df259
+        }
+    }
+.bg-dimmed {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(https://lh3.googleusercontent.com/aida-public/AB6AXuDk3dkX8SE7e62xh6Ol_E7sr-o25zFP3aFaMrP2PH62wFHwVRBXfUZDEqdYcF6ReaRFHcLsvqHL_y8iLVfsNrk_Vejw_PPaCsl1Wq686ltfo_upwwcwefygQNs-svbIZ5jcpIrHsXtez9LKBntVk0DJuWRALyEmfMt6FkfuGaPBHMCnkAEJhQjWVgP5L-CSZ4Ag2wAyMwphUTIn4iLgG05gLLP9NwXfzluQyvgW7Jrlm-MpJNb68PgE_bCKpup2pR2zrMWbg_CCgQ);
+    background-size: cover;
+    background-position: center
+    }</style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark min-h-screen overflow-hidden">
+<div class="relative w-full h-screen flex items-center justify-center bg-dimmed" data-alt="Abstract dark geometric wallpaper with green accents">
+<!-- Mock Background Tiling Windows (Blurred) -->
+<div class="absolute inset-0 grid grid-cols-12 grid-rows-6 gap-4 p-8 opacity-20 blur-sm pointer-events-none">
+<div class="col-span-8 row-span-4 bg-primary/10 border border-primary/20 rounded-lg"></div>
+<div class="col-span-4 row-span-3 bg-primary/10 border border-primary/20 rounded-lg"></div>
+<div class="col-span-4 row-span-3 bg-primary/10 border border-primary/20 rounded-lg"></div>
+<div class="col-span-12 row-span-2 bg-primary/10 border border-primary/20 rounded-lg"></div>
+</div>
+<!-- Rofi Launcher Content -->
+<div class="layout-content-container flex flex-col w-full max-w-[720px] glass-panel rounded-xl shadow-2xl overflow-hidden z-10">
+<!-- Search Input Area -->
+<div class="p-6 border-b border-primary/10">
+<label class="flex flex-col w-full">
+<div class="flex w-full items-center bg-primary/5 rounded-lg border border-primary/20 px-4 h-14">
+<div class="text-primary mr-3 shrink-0">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<div class="relative flex-1 flex items-center">
+<span class="text-slate-100 text-lg font-medium tracking-tight">vsc</span>
+<div class="neon-cursor h-6 ml-0.5"></div>
+<span class="text-primary/30 text-lg font-medium ml-1">ode</span>
+</div>
+<div class="flex items-center gap-2">
+<kbd class="px-2 py-1 rounded bg-primary/20 text-primary text-xs font-bold border border-primary/30">ESC</kbd>
+</div>
+</div>
+</label>
+</div>
+<!-- Results List -->
+<div class="flex flex-col p-2 max-h-[480px] overflow-y-auto">
+<h4 class="text-primary/50 text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-3">Applications &amp; Commands</h4>
+<!-- Active Result -->
+<div class="flex items-center gap-4 bg-primary text-background-dark px-4 min-h-[64px] py-2 rounded-lg cursor-pointer mx-2">
+<div class="flex items-center justify-center rounded-lg bg-background-dark/20 shrink-0 size-10">
+<span class="material-symbols-outlined text-background-dark">code</span>
+</div>
+<div class="flex flex-col justify-center flex-1">
+<p class="text-background-dark text-base font-bold leading-none">VS Code</p>
+<p class="text-background-dark/70 text-xs font-medium mt-1">App: /usr/bin/code</p>
+</div>
+<div class="shrink-0">
+<kbd class="text-[10px] opacity-70 border border-background-dark/30 px-1.5 py-0.5 rounded">ALT+1</kbd>
+</div>
+</div>
+<!-- Secondary Results -->
+<div class="flex items-center gap-4 hover:bg-primary/10 text-slate-100 px-4 min-h-[64px] py-2 rounded-lg cursor-pointer mx-2 group transition-colors">
+<div class="flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 group-hover:bg-primary/20">
+<span class="material-symbols-outlined text-primary">restart_alt</span>
+</div>
+<div class="flex flex-col justify-center flex-1">
+<p class="text-slate-100 text-base font-medium leading-none group-hover:text-primary">reboot</p>
+<p class="text-slate-400 text-xs font-normal mt-1">Command: System Restart</p>
+</div>
+<div class="shrink-0">
+<kbd class="text-[10px] text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">ALT+2</kbd>
+</div>
+</div>
+<div class="flex items-center gap-4 hover:bg-primary/10 text-slate-100 px-4 min-h-[64px] py-2 rounded-lg cursor-pointer mx-2 group transition-colors">
+<div class="flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 group-hover:bg-primary/20">
+<span class="material-symbols-outlined text-primary">description</span>
+</div>
+<div class="flex flex-col justify-center flex-1">
+<p class="text-slate-100 text-base font-medium leading-none group-hover:text-primary">index.ts</p>
+<p class="text-slate-400 text-xs font-normal mt-1">File: ~/projects/web/src/index.ts</p>
+</div>
+<div class="shrink-0">
+<kbd class="text-[10px] text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">ALT+3</kbd>
+</div>
+</div>
+<h4 class="text-primary/50 text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-3 mt-2 border-t border-primary/5">AI Assistant</h4>
+<div class="flex items-start gap-4 hover:bg-primary/10 text-slate-100 px-4 py-4 rounded-lg cursor-pointer mx-2 group transition-colors">
+<div class="flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10 group-hover:bg-primary/20">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+</div>
+<div class="flex flex-col justify-center flex-1">
+<p class="text-slate-100 text-base font-medium leading-none group-hover:text-primary">AI Query</p>
+<p class="text-slate-400 text-sm font-normal mt-2 leading-relaxed">"Explain the current TypeScript configuration in this workspace..."</p>
+</div>
+<div class="shrink-0">
+<kbd class="text-[10px] text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">CTRL+ENTER</kbd>
+</div>
+</div>
+</div>
+<!-- Footer Stats -->
+<div class="px-6 py-3 bg-primary/5 flex items-center justify-between text-[10px] font-medium text-primary/40 uppercase tracking-widest border-t border-primary/10">
+<div class="flex gap-4">
+<span>CPU: 12%</span>
+<span>MEM: 4.2GB</span>
+<span>NET: 42mbps</span>
+</div>
+<div class="flex gap-4 items-center">
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> Hyprland Active</span>
+<span>14:32</span>
+</div>
+</div>
+</div>
+</div>
+</body></html>

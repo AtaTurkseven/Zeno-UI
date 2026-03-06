@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zeno Shell Boot</title>
+  <link rel="stylesheet" href="css/splash.css" />
+</head>
+<body>
+  <main id="splash" aria-label="Boot splash screen">
+    <div class="logo-wrap">
+      <div class="logo-ring"></div>
+      <div class="logo-ring ring-b"></div>
+      <h1 id="logo">ZENO</h1>
+      <p id="stage">Starting shell...</p>
+    </div>
+
+    <div class="progress-wrap" aria-hidden="true">
+      <div id="progress-bar"></div>
+    </div>
+  </main>
+  <script src="js/splash.js"></script>
+</body>
+</html>

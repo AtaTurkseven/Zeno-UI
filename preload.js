@@ -40,4 +40,43 @@ contextBridge.exposeInMainWorld('zenoAPI', {
   // ── Plugin system ────────────────────────────────────────────────────────────
   listPlugins:  () => ipcRenderer.invoke('plugins:list'),
   loadPlugin:   (name) => ipcRenderer.invoke('plugins:load', name),
+
+  // ── Shell runtime config ─────────────────────────────────────────────────────
+  getShellConfig: () => ipcRenderer.invoke('shell:config'),
+
+  // ── Hyprland integration ─────────────────────────────────────────────────────
+  getHyprlandState: () => ipcRenderer.invoke('hyprland:state'),
+  switchWorkspace:  (workspaceId) => ipcRenderer.invoke('hyprland:switch-workspace', workspaceId),
+  focusWindow:      (address) => ipcRenderer.invoke('hyprland:focus-window', address),
+  subscribeHyprland: (cb) => {
+    ipcRenderer.send('hyprland:subscribe');
+    const handler = (_event, payload) => cb(payload);
+    ipcRenderer.on('hyprland:event', handler);
+    return () => ipcRenderer.removeListener('hyprland:event', handler);
+  },
+
+  // ── Log stream ───────────────────────────────────────────────────────────────
+  subscribeLogs: (cb) => {
+    ipcRenderer.send('logs:subscribe');
+    const handler = (_event, line) => cb(line);
+    ipcRenderer.on('logs:line', handler);
+    return () => ipcRenderer.removeListener('logs:line', handler);
+  },
+
+  // ── Startup lifecycle ────────────────────────────────────────────────────────
+  reportStartupProgress: (stage, progress) => ipcRenderer.send('shell:startup-progress', { stage, progress }),
+  markShellReady: () => ipcRenderer.send('shell:ready'),
+  onShellShortcut: (cb) => {
+    const handler = (_event, action) => cb(action);
+    ipcRenderer.on('shell:shortcut', handler);
+    return () => ipcRenderer.removeListener('shell:shortcut', handler);
+  },
+});
+
+contextBridge.exposeInMainWorld('zenoSplash', {
+  onProgress: (cb) => {
+    const handler = (_event, payload) => cb(payload);
+    ipcRenderer.on('splash:progress', handler);
+    return () => ipcRenderer.removeListener('splash:progress', handler);
+  },
 });

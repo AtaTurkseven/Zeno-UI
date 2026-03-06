@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>System &amp; AI Side Panel - HyprOS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0df259",
+                        "background-light": "#f5f8f6",
+                        "background-dark": "#0a0f0b",
+                        "panel-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(16, 34, 22, 0.8);
+            backdrop-filter: blur(12px);
+            border-left: 1px solid rgba(13, 242, 89, 0.2);
+        }
+        .terminal-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: rgba(13, 242, 89, 0.3);
+            border-radius: 10px;
+        }
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 10;
+            background: linear-gradient(0deg, rgba(13, 242, 89, 0) 0%, rgba(13, 242, 89, 0.05) 50%, rgba(13, 242, 89, 0) 100%);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 overflow-hidden font-display">
+<!-- Main Desktop Layout Wrapper -->
+<div class="flex h-screen w-full">
+<!-- Background/Main Workspace Content (Pushed Left) -->
+<main class="flex-1 p-6 transition-all duration-300 pr-96">
+<!-- Header for Context -->
+<header class="flex items-center justify-between mb-8 opacity-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">grid_view</span>
+<h1 class="text-xl font-bold tracking-tight">Workspace 1: Dev</h1>
+</div>
+<div class="flex gap-4 items-center">
+<div class="px-3 py-1 bg-white/5 rounded text-xs font-mono">14:20:05</div>
+<div class="px-3 py-1 bg-white/5 rounded text-xs font-mono">CPU: 12%</div>
+</div>
+</header>
+<!-- Mock Terminal Windows in Workspace -->
+<div class="grid grid-cols-2 gap-4 h-[80vh]">
+<div class="rounded-lg border border-primary/20 bg-primary/5 p-4 flex flex-col gap-2">
+<div class="flex items-center justify-between border-b border-primary/10 pb-2 mb-2">
+<span class="text-xs font-mono text-primary/60">~/projects/hypros/kernel</span>
+<div class="flex gap-1">
+<div class="size-2 rounded-full bg-red-500/50"></div>
+<div class="size-2 rounded-full bg-yellow-500/50"></div>
+<div class="size-2 rounded-full bg-green-500/50"></div>
+</div>
+</div>
+<div class="font-mono text-sm text-primary/80">
+<p class="mb-1">$ cargo build --release</p>
+<p class="text-slate-500">Compiling hypros-core v0.1.0 (/home/user/projects/hypros/kernel)</p>
+<p class="text-slate-500">Compiling nix v0.26.2</p>
+<p class="text-slate-500">Compiling tokio v1.28.1</p>
+<p class="text-primary/40 mt-4">_</p>
+</div>
+</div>
+<div class="rounded-lg border border-slate-700 bg-slate-800/20 p-4">
+<div class="flex items-center justify-between border-b border-slate-700 pb-2 mb-2">
+<span class="text-xs font-mono text-slate-500">neovim main.rs</span>
+</div>
+<div class="font-mono text-sm text-slate-400">
+<p><span class="text-purple-400">fn</span> <span class="text-blue-400">main</span>() {</p>
+<p class="pl-4"> <span class="text-orange-400">let</span> <span class="text-slate-300">config</span> = Config::load();</p>
+<p class="pl-4"> <span class="text-slate-300">println!</span>(<span class="text-green-400">"Initializing HyprOS kernel..."</span>);</p>
+<p class="pl-4">  Kernel::init(config).await.expect(<span class="text-green-400">"Critical error"</span>);</p>
+<p>}</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Slide-in Side Panel (Right) -->
+<aside class="fixed right-0 top-0 h-full w-96 glass-panel flex flex-col shadow-2xl z-50 overflow-hidden border-l border-primary/30">
+<!-- Panel Header -->
+<div class="p-5 border-b border-primary/10 flex items-center justify-between bg-primary/5">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">terminal</span>
+<h2 class="font-bold text-sm uppercase tracking-widest text-primary">System Monitor</h2>
+</div>
+<div class="flex gap-2">
+<button class="p-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">settings</span>
+</button>
+<button class="p-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto terminal-scroll p-4 space-y-6">
+<!-- Monitoring Section -->
+<section class="space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-primary/5 p-3 rounded-lg border border-primary/10">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] uppercase font-bold text-primary/60">Network</span>
+<span class="material-symbols-outlined text-primary text-xs">rss_feed</span>
+</div>
+<div class="text-xl font-bold font-mono">124.5 <span class="text-[10px] font-normal text-slate-500">KiB/s</span></div>
+<div class="mt-2 h-10 w-full overflow-hidden">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 40">
+<path d="M0 40 L0 30 Q 10 10, 20 25 T 40 15 T 60 35 T 80 10 T 100 20 L 100 40 Z" fill="rgba(13, 242, 89, 0.1)" stroke="#0df259" stroke-width="1.5"></path>
+</svg>
+</div>
+</div>
+<div class="bg-primary/5 p-3 rounded-lg border border-primary/10">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] uppercase font-bold text-primary/60">Disk I/O</span>
+<span class="material-symbols-outlined text-primary text-xs">hard_drive</span>
+</div>
+<div class="text-xl font-bold font-mono text-orange-400">88.2 <span class="text-[10px] font-normal text-slate-500">Ops/s</span></div>
+<div class="mt-2 h-10 w-full overflow-hidden">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 40">
+<path d="M0 40 L0 25 Q 15 35, 30 15 T 50 30 T 70 5 T 90 25 T 100 15 L 100 40 Z" fill="rgba(251, 146, 60, 0.1)" stroke="#fb923c" stroke-width="1.5"></path>
+</svg>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Assistant Chat Widget -->
+<section class="bg-slate-900/40 rounded-xl border border-primary/20 overflow-hidden flex flex-col h-[400px]">
+<div class="p-3 bg-primary/10 border-b border-primary/10 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
+<span class="text-xs font-bold uppercase tracking-wider">Aura Assistant</span>
+</div>
+<div class="flex-1 p-3 overflow-y-auto space-y-4 font-display text-sm">
+<!-- Bot Message -->
+<div class="flex flex-col gap-2">
+<div class="p-3 rounded-xl rounded-tl-none bg-primary/10 border border-primary/5 text-slate-300">
+                                Analyzed the build logs. You have a missing dependency for `wayland-client`. Try running:
+                                <div class="mt-2 font-mono text-xs bg-black/40 p-2 rounded border border-primary/20 text-primary">
+                                    sudo pacman -S wayland
+                                </div>
+</div>
+<span class="text-[10px] text-slate-500 ml-1">AI Assistant • Just now</span>
+</div>
+<!-- User Message -->
+<div class="flex flex-col items-end gap-2">
+<div class="p-3 rounded-xl rounded-tr-none bg-slate-800 border border-slate-700 text-slate-200 max-w-[80%]">
+                                How do I check the kernel logs for Hyprland?
+                            </div>
+<span class="text-[10px] text-slate-500 mr-1">User • 2m ago</span>
+</div>
+<!-- Bot Message -->
+<div class="flex flex-col gap-2">
+<div class="p-3 rounded-xl rounded-tl-none bg-primary/10 border border-primary/5 text-slate-300">
+                                Use the `journalctl` command filtered by process:
+                                <div class="mt-2 font-mono text-xs bg-black/40 p-2 rounded border border-primary/20">
+<span class="text-slate-500"># Command:</span><br/>
+<span class="text-primary">journalctl -u hyprland -f</span>
+</div>
+</div>
+</div>
+</div>
+<div class="p-3 border-t border-primary/10 bg-black/20">
+<div class="relative">
+<input class="w-full bg-black/40 border-primary/30 rounded-lg text-xs font-mono text-slate-300 focus:ring-primary focus:border-primary placeholder:text-slate-600 pl-3 pr-10 py-2" placeholder="Ask Aura..." type="text"/>
+<button class="absolute right-2 top-1.5 text-primary hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-lg">send</span>
+</button>
+</div>
+</div>
+</section>
+<!-- System Logs (Terminal Widget) -->
+<section class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Real-time Logs</span>
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-[10px] text-primary/60">Live</span>
+</div>
+</div>
+<div class="bg-black/60 rounded-lg border border-primary/10 p-3 font-mono text-[11px] h-32 overflow-y-auto terminal-scroll leading-relaxed">
+<p class="text-blue-400">[14:20:01] <span class="text-slate-400">INFO: Initializing Wayland compositor...</span></p>
+<p class="text-blue-400">[14:20:02] <span class="text-slate-400">INFO: Loading config from ~/.config/hypr/hyprland.conf</span></p>
+<p class="text-yellow-500">[14:20:02] <span class="text-slate-400">WARN: Monitor 'DP-1' has no scaling factor defined</span></p>
+<p class="text-blue-400">[14:20:03] <span class="text-slate-400">INFO: Registered input device: 'Logitech G Pro'</span></p>
+<p class="text-red-500">[14:20:04] <span class="text-slate-400">ERROR: Failed to mount /mnt/backup (Connection timed out)</span></p>
+<p class="text-blue-400">[14:20:05] <span class="text-slate-400">INFO: Process 'hyprpaper' started with PID 12402</span></p>
+</div>
+</section>
+</div>
+<!-- Footer Stats -->
+<div class="p-4 border-t border-primary/10 bg-primary/5 grid grid-cols-3 text-center gap-2">
+<div>
+<div class="text-[10px] text-slate-500 uppercase">Uptime</div>
+<div class="text-xs font-mono font-bold">2d 04h</div>
+</div>
+<div>
+<div class="text-[10px] text-slate-500 uppercase">Mem</div>
+<div class="text-xs font-mono font-bold">4.2/16G</div>
+</div>
+<div>
+<div class="text-[10px] text-slate-500 uppercase">Temp</div>
+<div class="text-xs font-mono font-bold text-orange-400">54°C</div>
+</div>
+</div>
+<!-- Scanline overlay effect -->
+<div class="scanline absolute top-0 left-0"></div>
+</aside>
+</div>
+<!-- Floating Hotkey Indicator -->
+<div class="fixed bottom-6 right-[400px] bg-primary/10 border border-primary/30 text-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest backdrop-blur-md">
+        Press <span class="bg-primary text-background-dark px-1.5 py-0.5 rounded mx-1">SUPER + S</span> to toggle
+    </div>
+</body></html>

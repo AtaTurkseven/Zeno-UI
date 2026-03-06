@@ -1,0 +1,11 @@
+{
+  "shellName": "Zeno Shell",
+  "logoText": "ZENO",
+  "workspaces": [1, 2, 3, 4, 5],
+  "launcherShortcut": "Super+Space",
+  "sidePanelShortcut": "Super+S",
+  "widgets": [
+    "widgets/workspace-summary.js",
+    "widgets/resource-ticker.js"
+  ]
+}

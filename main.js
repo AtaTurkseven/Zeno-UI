@@ -10,6 +10,30 @@ app.commandLine.appendSwitch('disable-pinch');
 app.commandLine.appendSwitch('touch-events', 'disabled');
 
 let mainWindow = null;
+let splashWindow = null;
+let shellReady = false;
+
+function createSplashWindow() {
+  splashWindow = new BrowserWindow({
+    fullscreen: true,
+    frame: false,
+    alwaysOnTop: true,
+    focusable: false,
+    backgroundColor: '#03070b',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+    },
+    show: true,
+  });
+
+  splashWindow.loadFile(path.join(__dirname, 'src', 'renderer', 'splash.html'));
+  splashWindow.on('closed', () => {
+    splashWindow = null;
+  });
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -34,19 +58,43 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, 'src', 'renderer', 'index.html'));
 
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
-  });
-
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
 }
 
-app.whenReady().then(() => {
-  createWindow();
+function finishStartup() {
+  if (shellReady) return;
+  shellReady = true;
 
-  // Register global keyboard shortcuts (no touch equivalents)
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.show();
+    mainWindow.focus();
+  }
+
+  if (splashWindow && !splashWindow.isDestroyed()) {
+    splashWindow.webContents.send('splash:progress', {
+      stage: 'Desktop ready',
+      progress: 100,
+      done: true,
+    });
+
+    setTimeout(() => {
+      if (splashWindow && !splashWindow.isDestroyed()) {
+        splashWindow.close();
+      }
+      splashWindow = null;
+    }, 500);
+  }
+}
+
+function sendShellAction(action) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('shell:shortcut', action);
+  }
+}
+
+function registerShellShortcuts() {
   globalShortcut.register('F11', () => {
     if (mainWindow) {
       mainWindow.setFullScreen(!mainWindow.isFullScreen());
@@ -56,6 +104,34 @@ app.whenReady().then(() => {
   globalShortcut.register('Control+Q', () => {
     app.quit();
   });
+
+  globalShortcut.register('Super+Space', () => sendShellAction('toggle-launcher'));
+  globalShortcut.register('Super+S', () => sendShellAction('toggle-side-panel'));
+
+  for (let i = 1; i <= 9; i += 1) {
+    globalShortcut.register(`Super+${i}`, () => sendShellAction(`workspace-${i}`));
+  }
+}
+
+app.whenReady().then(() => {
+  createSplashWindow();
+  createWindow();
+  registerShellShortcuts();
+
+  ipcMain.on('shell:startup-progress', (_event, payload) => {
+    if (splashWindow && !splashWindow.isDestroyed()) {
+      splashWindow.webContents.send('splash:progress', payload || {});
+    }
+  });
+
+  ipcMain.once('shell:ready', () => {
+    finishStartup();
+  });
+
+  // Fallback to avoid an endless splash if renderer startup hook fails.
+  setTimeout(() => {
+    if (!shellReady) finishStartup();
+  }, 12000);
 });
 
 app.on('window-all-closed', () => {

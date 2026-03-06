@@ -2,120 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Strict CSP: no inline scripts, no remote resources -->
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zeno-UI</title>
+  <title>Zeno Shell</title>
   <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
+  <div id="desktop-bg"></div>
 
-<!-- Animated background canvas -->
-<canvas id="bg-canvas"></canvas>
-
-<!-- Main application grid -->
-<div id="app">
-
-  <!-- ── System Monitor ─────────────────────────────────────── -->
-  <section id="panel-sysmon" class="panel" aria-label="System Monitor">
-    <header class="panel-header">
-      <span class="panel-title">⬡ System Monitor</span>
-      <span id="sysmon-clock"></span>
-    </header>
-    <div class="panel-body" id="sysmon-body">
-      <div class="stat-label"><span>CPU</span><span id="cpu-pct">–%</span></div>
-      <div class="stat-bar"><div class="stat-bar-fill" id="cpu-bar" style="width:0%"></div></div>
-
-      <div class="stat-label"><span>Memory</span><span id="mem-pct">–%</span></div>
-      <div class="stat-bar"><div class="stat-bar-fill" id="mem-bar" style="width:0%"></div></div>
-
-      <div class="stat-label"><span>Swap</span><span id="swap-pct">–%</span></div>
-      <div class="stat-bar"><div class="stat-bar-fill" id="swap-bar" style="width:0%"></div></div>
-
-      <div id="cpu-cores"></div>
-
-      <hr style="border-color:var(--color-border);margin:8px 0;" />
-
-      <div id="disk-info" style="font-size:11px;color:var(--color-text-dim);"></div>
-
-      <hr style="border-color:var(--color-border);margin:8px 0;" />
-
-      <div id="net-info" style="font-size:11px;color:var(--color-text-dim);"></div>
-    </div>
-  </section>
-
-  <!-- ── Terminal ───────────────────────────────────────────── -->
-  <section id="panel-terminal" class="panel" aria-label="Terminal">
-    <header class="panel-header">
-      <span class="panel-title">▶ Terminal</span>
-      <span style="font-size:10px;color:var(--color-text-dim);">
-        <kbd>Ctrl+`</kbd> focus &nbsp; <kbd>Ctrl+Shift+C/V</kbd> copy/paste
-      </span>
-    </header>
-    <div class="panel-body">
-      <div id="terminal-container"></div>
-    </div>
-  </section>
-
-  <!-- ── Process Viewer ─────────────────────────────────────── -->
-  <section id="panel-procs" class="panel" aria-label="Process Viewer">
-    <header class="panel-header">
-      <span class="panel-title">◈ Processes</span>
-      <span id="proc-count" style="font-size:10px;color:var(--color-text-dim);"></span>
-    </header>
-    <div class="panel-body" id="proc-body">
-      <div class="proc-row" style="color:var(--color-text-dim);cursor:default;border-bottom:1px solid var(--color-border);margin-bottom:4px;">
-        <span>PID</span><span>NAME</span><span style="text-align:right;">MEM</span><span style="text-align:right;">STATE</span>
+  <div id="desktop-root" class="booting">
+    <header id="top-bar" aria-label="System bar">
+      <div class="top-left">
+        <span class="brand" id="brand-name">ZENO</span>
+        <ul id="workspace-list" aria-label="Workspaces"></ul>
       </div>
-      <div id="proc-list"></div>
-    </div>
-  </section>
 
-  <!-- ── Filesystem Navigator ───────────────────────────────── -->
-  <section id="panel-fs" class="panel" aria-label="Filesystem">
-    <header class="panel-header">
-      <span class="panel-title">⊞ Files</span>
-      <span style="font-size:10px;color:var(--color-text-dim);">
-        <kbd>Enter</kbd> open &nbsp; <kbd>Backspace</kbd> up
-      </span>
+      <div class="top-center">
+        <span id="active-window-title">No active window</span>
+      </div>
+
+      <div class="top-right">
+        <div class="metric" id="metric-cpu">CPU --%</div>
+        <div class="metric" id="metric-ram">RAM --%</div>
+        <div class="metric" id="metric-gpu">GPU --%</div>
+        <div class="metric" id="metric-net">NET --</div>
+        <div class="metric" id="metric-bat">BAT --%</div>
+        <div class="metric clock" id="metric-clock">--:--:--</div>
+      </div>
     </header>
-    <div class="fs-crumbs" id="fs-crumbs">/</div>
-    <div class="panel-body" id="fs-body" tabindex="0" role="listbox" aria-label="Files"></div>
-  </section>
 
-</div><!-- /#app -->
+    <main id="workspace-container" aria-label="Workspace container">
+      <section id="workspace-surface" tabindex="0">
+        <div class="surface-title">Hyprland Workspace</div>
+        <div id="window-list" aria-label="Tracked windows"></div>
+      </section>
 
-<!-- ── App Launcher overlay ───────────────────────────────────── -->
-<div id="launcher" role="dialog" aria-modal="true" aria-label="App Launcher">
-  <div id="launcher-box">
-    <input id="launcher-input" type="text" placeholder="Search applications…" aria-label="Search applications" autocomplete="off" spellcheck="false" />
-    <ul id="launcher-results" role="listbox"></ul>
+      <aside id="widget-dock" aria-label="Widgets">
+        <div class="dock-title">Widgets</div>
+        <div id="widget-mount"></div>
+      </aside>
+    </main>
+
+    <footer id="shell-hints">
+      <span><kbd>Super+Space</kbd> Launcher</span>
+      <span><kbd>Super+S</kbd> Side Panel</span>
+      <span><kbd>Super+1..9</kbd> Workspace</span>
+      <span><kbd>Ctrl+Q</kbd> Quit</span>
+    </footer>
   </div>
-</div>
 
-<!-- ── Status bar ─────────────────────────────────────────────── -->
-<footer id="statusbar" aria-label="Status Bar">
-  <div class="sb-left">
-    <span class="sb-item"><span class="label">THEME</span><span id="sb-theme">default</span></span>
-    <span class="sb-item"><span class="label">PLUGINS</span><span id="sb-plugins">0</span></span>
+  <div id="launcher" role="dialog" aria-modal="true" aria-label="Launcher">
+    <div id="launcher-panel">
+      <input id="launcher-input" type="text" placeholder="Run command or app..." autocomplete="off" spellcheck="false" />
+      <ul id="launcher-results" role="listbox"></ul>
+    </div>
   </div>
-  <div class="sb-right">
-    <span class="sb-item"><kbd>Super+Space</kbd> launcher</span>
-    <span class="sb-item"><kbd>Ctrl+1-4</kbd> focus panel</span>
-    <span class="sb-item"><kbd>F11</kbd> fullscreen</span>
-    <span class="sb-item"><kbd>Ctrl+Q</kbd> quit</span>
-  </div>
-</footer>
 
-<!-- Renderer scripts (loaded as ES modules for clean scoping) -->
-<script src="js/canvas-bg.js"></script>
-<script src="js/modules/system-monitor.js"></script>
-<script src="js/modules/process-viewer.js"></script>
-<script src="js/modules/filesystem-nav.js"></script>
-<script src="js/modules/terminal.js"></script>
-<script src="js/modules/launcher.js"></script>
-<script src="js/app.js"></script>
+  <aside id="side-panel" aria-label="System and AI tools">
+    <div class="panel-header">
+      <span>SYSTEM + AI</span>
+      <button id="side-panel-close" aria-label="Close panel">X</button>
+    </div>
 
+    <div class="panel-block">
+      <h3>AI Tools</h3>
+      <div class="ai-box" id="ai-answer">Ask for diagnostics, logs, or quick shell actions.</div>
+      <div class="ai-input-row">
+        <input id="ai-input" type="text" placeholder="Ask: 'show hypr logs'" />
+        <button id="ai-send">GO</button>
+      </div>
+    </div>
+
+    <div class="panel-block grow">
+      <h3>System Logs</h3>
+      <pre id="log-feed" aria-label="Live logs"></pre>
+    </div>
+  </aside>
+
+  <script src="js/modules/system-bar.js"></script>
+  <script src="js/modules/workspace-shell.js"></script>
+  <script src="js/modules/launcher-shell.js"></script>
+  <script src="js/modules/side-panel.js"></script>
+  <script src="js/modules/widget-loader.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
